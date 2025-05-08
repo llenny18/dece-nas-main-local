@@ -1899,7 +1899,7 @@ def view_folder_f(request, folder_code):
 
     # Get faculty files
     folder_files1 = FileOfStudents.objects.filter(folder_code=folder_code)
-    folder_files2 = FacultyFiles.objects.filter(folder_code=folder_code, uploader_id=faculty_id)
+    folder_files2 = FacultyFiles.objects.filter(folder_code=folder_code)
     students = StudentAccount.objects.all()
     shared_files = FilesShared.objects.filter(folder_code=folder_code)
 
@@ -2024,9 +2024,12 @@ def view_folder_f(request, folder_code):
                 else:
                     messages.error(request, "All fields are required!")
             elif "folder_code_delete" in request.POST:
-                folder_code = request.POST.get("folder_code_delete")
-                folder_whole = FolderTns.objects.filter(unique_code=folder_code).first()
+                folder_code_d = request.POST.get("folder_code_delete")
+                folder_whole = FolderTns.objects.filter(unique_code=folder_code_d).first()
                 folder_whole.delete()
+                messages.success(request, f"Folder Deleted successfully")
+
+                return redirect("view_folder_f", folder_code=folder_code)
             elif "delete_file" in request.POST:
                 file_name = request.POST.get("file_name")
                 file_id = request.POST.get("file_id")
