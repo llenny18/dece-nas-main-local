@@ -1358,7 +1358,7 @@ def verify_otp(request):
 import os
 from subprocess import run, CalledProcessError
 from django.conf import settings
-ez = """ 
+
 def map_network_drive():
   
     network_drive = settings.NETWORK_DRIVE
@@ -1384,13 +1384,11 @@ def map_network_drive():
 
 
 # Define the Network Drive Path
-NETWORK_DRIVE_PATH =  r"\\172.16.127.120\shared_folder"  # Update this if needed """
+NETWORK_DRIVE_PATH =  r"\\172.16.127.120\shared_folder"  # Update this if needed 
 
-
+""" 
 def map_network_drive():
-    """
-    Function to map the network drive without authentication.
-    """
+
     network_drive = settings.NETWORK_DRIVE
     try:
         # Run the 'net use' command without user authentication
@@ -1403,10 +1401,10 @@ def map_network_drive():
         raise Exception("Failed to map network drive.")
 
 
-
 # Define the Network Drive Path
 NETWORK_DRIVE_PATH = r"Z:\\"  # Update this if needed
 
+    """
 # Allowed file types
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")
 VIDEO_EXTENSIONS = (".mp4", ".avi", ".mov", ".mkv", ".flv")
