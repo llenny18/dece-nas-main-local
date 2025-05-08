@@ -1015,16 +1015,18 @@ def faculty_everif(request):
     """Handle OTP verification"""
     faculty_gsuite = request.session.get("faculty_gsuite", None)
     faculty_id = request.session.get("faculty_id", None)
+    otp_now = request.session.get("otp", None)
 
     if not faculty_gsuite:
         return redirect("faculty_reg")  # Redirect if no email in session
 
     # Generate OTP and store in session
-    otp = generate_otp()
-    request.session["otp"] = otp
-    request.session["otp_expiry"] = (now() + datetime.timedelta(minutes=5)).isoformat()
+    if not faculty_gsuite:
+        otp = generate_otp()
+        request.session["otp"] = otp
+        request.session["otp_expiry"] = (now() + datetime.timedelta(minutes=5)).isoformat()
 
-    send_email(otp, faculty_gsuite)
+        send_email(otp, faculty_gsuite)
     messages.success(request, "An OTP has been sent to your email.")
 
     return render(request, "faculty/f-everif.html", {"faculty_gsuite": faculty_gsuite, "faculty_id": faculty_id})
@@ -1078,6 +1080,12 @@ def reg_faculty(request):
 
                 request.session['faculty_gsuite'] = gsuite
                 request.session['faculty_id'] = faculty_id
+                otp = generate_otp()
+                request.session["otp"] = otp
+                request.session["otp_expiry"] = (now() + datetime.timedelta(minutes=5)).isoformat()
+
+                send_email(otp, gsuite)
+                messages.success(request, "An OTP has been sent to your email.")
                 log_action('faculty', faculty_id, 'Registered to the system', request)
 
                 messages.success(request, "Registration successful! Please verify your email.")
@@ -1096,8 +1104,8 @@ def faculty_direct_verif(request):
         try:
             if UserAccount.objects.filter(username=g_email, email_verified='no').exists():
                 student = FacultyAccount.objects.get(gsuite=g_email)
-                request.session['student_email'] = student.gsuite
-                request.session['student_srcode'] = student.gsuite
+                request.session['faculty_gsuite'] = student.gsuite
+                request.session['faculty_id'] = student.faculty_id
                 otp = generate_otp()
                 request.session["otp"] = otp
                 request.session["otp_expiry"] = (now() + datetime.timedelta(minutes=5)).isoformat()
@@ -1350,11 +1358,9 @@ def verify_otp(request):
 import os
 from subprocess import run, CalledProcessError
 from django.conf import settings
-
+ez = """ 
 def map_network_drive():
-    """
-    Function to map the network drive with authentication.
-    """
+  
     network_drive = settings.NETWORK_DRIVE
     username = network_drive.get("username")
     password = network_drive.get("password")
@@ -1378,7 +1384,28 @@ def map_network_drive():
 
 
 # Define the Network Drive Path
-NETWORK_DRIVE_PATH =  r"\\172.16.127.120\shared_folder"  # Update this if needed
+NETWORK_DRIVE_PATH =  r"\\172.16.127.120\shared_folder"  # Update this if needed """
+
+
+def map_network_drive():
+    """
+    Function to map the network drive without authentication.
+    """
+    network_drive = settings.NETWORK_DRIVE
+    try:
+        # Run the 'net use' command without user authentication
+        run([
+            "net", "use", network_drive["drive_letter"], network_drive["network_path"],
+            "/persistent:yes"
+        ], check=True)
+    except CalledProcessError as e:
+        print(f"Error mapping network drive: {e}")
+        raise Exception("Failed to map network drive.")
+
+
+
+# Define the Network Drive Path
+NETWORK_DRIVE_PATH = r"Z:\\"  # Update this if needed
 
 # Allowed file types
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")
@@ -1600,8 +1627,9 @@ def view_folder_s(request, folder_code):
             grouped_folders[code] = {
                 'folder_name': folder.folder_name,
                 'description': folder.description,
+                'unique_code': folder.unique_code,
                 'apicode': folder.apicode,
-                'faculty_gsuite': folder.faculty_email,
+                'faculty_gsuite': folder.faculty_gsuite,
                 'students': []
             }
         students_in_folder = StudentFolderView.objects.filter(unique_code=code)
@@ -1614,6 +1642,7 @@ def view_folder_s(request, folder_code):
                 'last_name': student.student_last_name,
                 'username': f"{student.sr_code}@g.batstate-u.edu.ph",
             })
+    print(grouped_folders)
 
     foldertns = FolderTns.objects.get(unique_code=folder_code)
     fid = foldertns.faculty_id
@@ -2163,7 +2192,7 @@ def faculty_folders(request):
     student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id).values(
         'unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 
         'student_first_name', 'student_last_name'
-    ).distinct()
+    ).distinct().order_by('-id')
 
     # Group student-associated folders
     grouped_folders = {}
@@ -2282,7 +2311,7 @@ def student_folders(request):
         return redirect(reverse('student_login'))
     
     student_folders = StudentFolderView.objects.filter(sr_code=student_id) \
-        .values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite')
+        .values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite').order_by('-id')
 
     print(student_id)
 

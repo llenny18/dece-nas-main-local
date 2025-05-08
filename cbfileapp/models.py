@@ -218,6 +218,7 @@ class StudentFolder(models.Model):
 
 
 class StudentFolderView(models.Model):
+    id = models.AutoField(primary_key=True)
     sr_code = models.CharField(max_length=10)
     student_first_name = models.CharField(max_length=50, null=True)
     student_middle_name = models.CharField(max_length=50, null=True)

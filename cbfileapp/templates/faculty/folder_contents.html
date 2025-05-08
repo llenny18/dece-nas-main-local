@@ -180,7 +180,7 @@
        </li>
         <li><form method="post" onsubmit="return confirmDelete()">
           {% csrf_token %}
-            <input type="text" name="folder_code_delete" value="{{ folder.unique_code }}" style="display: none">
+            <input type="text" name="folder_code_delete" value="{{ unique_code }}" style="display: none">
             <button style="background-color: #ff0404;" class="btn btn-danger m-1" type="submit">Delete Folder</button>
         </form></li>
         
