@@ -1,0 +1,194 @@
+{% load static %}
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>DECE NAS- Student Login</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/bsu.ico' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}"  class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+
+    <!-- Page CSS -->
+    <!-- Page -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-auth.css' %}" />
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'assets/js/config.js' %}"></script>
+    <style>
+      .captcha{
+        width: 300px;
+        margin-left: 30px;
+      } 
+      
+    </style>
+  </head>
+
+  <body>
+    <!-- Content -->
+
+    <div class="container-xxl">
+      <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+          <!-- Register -->
+          <div class="card">
+            <div class="card-body">
+              <!-- Logo -->
+              <div class="row">
+                <div class="col-md-6">
+               
+                <!-- Logo -->
+      <a href="{% url 'home' %}" style="background-color: #ff0404;" class="btn btn-danger "><i class="bx bx-left-arrow-circle" style="font-size: 25px"></i> &nbsp; Back to Home Page</a>
+                <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 100%; ">
+                </div>
+                <!-- /Logo -->
+                <div class="col-md-6">
+              <h4 class="mb-2">Verify Your Email Here </h4>
+
+              <form id="formAuthentication" class="mb-3" action="{% url 'verify_otp' %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                      value="{{ student_email }}"
+                    id="email"
+                    name="email-username"
+                    placeholder="Enter your email or username"
+                    required
+                  />
+                </div>
+                <div class="mb-3 form-password-toggle">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="password">OTP (One-Time Password)</label>
+                  
+                  </div>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="text"
+                      id="password"
+                      class="form-control"
+                      name="otp"
+                      placeholder="------"
+                      required
+                    />
+                    <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                  </div>
+                </div>
+                <hr>
+                {% csrf_token %}
+                {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
+            
+                <div class="mb-3">
+                  <button style="background-color: #ff0404;" class="btn btn-primary d-grid w-100" type="submit">Verify</button>
+                </div>
+              </form>
+              {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+              <p class="text-center">
+                
+<p id="countdown"></p>
+<button id="resendOtp" onclick="location.reload();" disabled style="background-color: #ff0404;" class="btn btn-danger">Resend OTP</button>
+
+<script>
+    let expiryTime = new Date("{{ request.session.otp_expiry }}").getTime();
+    let countdown = document.getElementById("countdown");
+    let resendBtn = document.getElementById("resendOtp");
+
+    function updateCountdown() {
+        let now = new Date().getTime();
+        let timeLeft = expiryTime - now;
+
+        if (timeLeft > 0) {
+            let minutes = Math.floor(timeLeft / 60000);
+            let seconds = Math.floor((timeLeft % 60000) / 1000);
+            countdown.innerHTML = `OTP expires in ${minutes}:${seconds}`;
+            setTimeout(updateCountdown, 1000);
+        } else {
+            countdown.innerHTML = "OTP expired!";
+            resendBtn.disabled = false;
+        }
+    }
+    updateCountdown();
+</script>
+              </p>
+            </div>
+          </div>
+          <!-- /Register -->
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+    <!-- / Content -->
+
+ 
+
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+
+    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+
+    <!-- Main JS -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    <!-- Page JS -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var captchaInput = document.getElementById("id_captcha_1");
+        if (captchaInput) {
+            captchaInput.classList.add("form-control");
+            captchaInput.setAttribute("placeholder", "Enter the CAPTCHA");
+        }
+    });
+  </script>
+    
+  </body>
+</html>

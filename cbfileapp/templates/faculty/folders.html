@@ -1,0 +1,586 @@
+{% load static %}
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>DECE NAS- File Folders</title>
+
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/bsu.ico' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'assets/js/config.js' %}"></script>
+    <style>
+      .toggle-icons {
+        font-size: 30px;
+        cursor: pointer;
+        margin: 10px;
+        color: gray;
+      }
+      .toggle-icons.active {
+        color: #ff0404;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+        {% include 'faculty/nav.html' %}
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            
+            <!-- Content -->
+
+            {% for unique_code, folder in grouped_folders.items %}
+
+            <div class="modal fade" id="foldermodal{{unique_code}}" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                <form method="post">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-body">
+                      <label>File Name</label>
+                      <input type="hidden" name="u_code" value="{{ unique_code }}">
+                      <input class="form-control" type="text" name="file_name" value="{{ folder.folder_name }}">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button class="btn btn-success" name="change_flname">Change Folder Name</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+
+            {% endfor %}
+
+
+{% for folder in empty_folders %}
+<div class="modal fade" id="foldermodal{{folder.unique_code}}" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <form method="post">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-body">
+          <label>File Name</label>
+          <input type="hidden" name="u_code" value="{{ folder.unique_code }}">
+          <input class="form-control" type="text" name="file_name" value="{{ folder.folder_name }}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-success" name="change_flname">Change Folder Name</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endfor %}
+
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <h6 class="alert alert-dark">{{ notification }}</h6>
+              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Faculty / </span> File Folders</h4>
+             
+              {% if messages %}
+              <div class="alert alert-danger">
+                  {% for message in messages %}
+                      <p>{{ message }}</p>
+                  {% endfor %}
+              </div>
+          {% endif %}
+              <!-- Tabs -->
+
+              <div class="row">
+                <div class="col-xl-12">
+                  <div class="col-xl-12 d-flex justify-content-end">
+                <i id="cardView" class='bx bxs-card toggle-icons'></i>
+                  <i id="listView" class='bx bx-list-ul toggle-icons'></i>
+                </div>
+              </div>
+              <div class="col-xl-12">
+                <div class="col-xl-12 d-flex">
+                  
+                  <!-- Button trigger modal -->
+                   
+                  <button
+                  type="button"
+                  class="btn btn-primary" style="background-color: #ff0404;"
+                  data-bs-toggle="modal"
+                  data-bs-target="#basicModal"
+                >
+                <i class="bx bx-folder-plus me-2" style="color: white; font-size: 22px; margin-top: -4px;"></i> Create New Folder
+                </button>
+                
+              </div>
+            </div>
+
+             <!-- Modal -->
+<form method="POST">
+  {% csrf_token %}
+  <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create New Folder</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Folder Name</label>
+            <input type="text" name="folder_name" class="form-control" placeholder="Enter folder name" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" placeholder="Enter description" required></textarea>
+          </div>
+          <div class="mb-3" style="display: none;">
+            <label class="form-label">Api Code</label>
+            <input type="text" name="apicode" value="mm" class="form-control" placeholder="Enter API code"  />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" style="background-color: #ff0404;" name="create">Create Folder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+              <div class="row">
+             
+              <div class="listDiv hidden">
+{% for unique_code, folder in grouped_folders.items %}
+
+
+<li class="list-group-item m-2">
+    
+  <div class="row">
+           
+    <div class="col-md-3">
+  Folder Name: {{ folder.folder_name }}
+</div>
+      <div class="col-md-3">
+  <a class="btn btn-success" style="background-color: #20c404;" href="{% url 'view_folder_f' folder_code=unique_code %}">Enter Folder</a>
+  </div>
+  <div class="col-md-3">
+  <button class="btn btn-success m-1"  style="background-color: #20c404;"   data-bs-toggle="modsal" data-bs-target="#foldermodal{{unique_code}}">Edit Name</button>
+</div>
+
+  <div class="col-md-3">
+
+    <form method="post" onsubmit="return confirmDelete()">
+    {% csrf_token %}
+      
+      <input type="text" name="folder_code_delete" value="{{ folder.unique_code }}" style="display: none">
+      <button  style="background-color: #ff0404;" class="btn btn-danger" type="submit">Delete Folder</button>
+  </form>
+</div>
+</div>
+</li>
+
+{% endfor %}
+
+{% for folder in empty_folders %}
+
+
+<li class="list-group-item m-2">
+    
+  <div class="row align-items-center">
+    <div class="col-md-3">
+      Folder Name: {{ folder.folder_name }}
+    </div>
+    <div class="col-md-3">
+      <a class="btn btn-success" style="background-color: #20c404;" href="{% url 'view_folder_f' folder_code=folder.unique_code %}">Enter Folder</a>
+      </div>
+      <div class="col-md-3">
+      <button class="btn btn-success m-1"  style="background-color: #20c404;"   data-bs-toggle="modal" data-bs-target="#foldermodal{{folder.unique_code}}">Edit Name</button>
+    </div>
+    
+      <div class="col-md-3">
+    
+        <form method="post" onsubmit="return confirmDelete()">
+        {% csrf_token %}
+          
+          <input type="text" name="folder_code_delete" value="{{ folder.unique_code }}" style="display: none">
+          <button  style="background-color: #ff0404;" class="btn btn-danger" type="submit">Delete Folder</button>
+      </form>
+    </div>
+    </div>
+    </li>
+    
+    {% endfor %}
+    
+</div>
+
+
+
+
+
+
+
+<div class="cardDiv">
+                <div class="row">
+                  {% for unique_code, folder in grouped_folders.items %}
+                  
+                <div class="col-xl-6">
+                  
+                  <div class="nav-align-top mb-4">
+                    <div class="dropdown ml-auto" style="background-color: #f0ecf4; border-radius: 5px;">
+
+                      <button class="btn btn-link " type="button" id="dropdownMenuButton"  style="margin-left: 90%;" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class='bx bx-dots-vertical-rounded'></i>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                        <button class="btn btn-success m-1"  style="background-color: #20c404;"   data-bs-toggle="modal" data-bs-target="#foldermodal{{unique_code}}">Edit Name</button>
+                      </li>
+
+                        <li><form method="post" onsubmit="return confirmDelete()">
+                          {% csrf_token %}
+                            <input type="text" name="folder_code_delete" value="{{ folder.unique_code }}" style="display: none">
+                            <button  style="background-color: #ff0404;" class="btn  btn-danger m-1" type="submit">Delete Folder</button>
+                        </form></li>
+                        
+                      </ul>
+                    </div>
+                    <ul class="nav nav-tabs nav-fill" role="tablist">
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link active"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-home{{ unique_code }}"
+                          aria-controls="navs-justified-home"
+                          aria-selected="true"
+                        >
+                          <i class="tf-icons bx bx-file"></i>Folder Name: {{ folder.folder_name }}
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-profile{{ unique_code }}"
+                          aria-controls="navs-justified-profile"
+                          aria-selected="false"
+                        >
+                          <i class="tf-icons bx bx-user"></i> Creator
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-messages{{ unique_code }}"
+                          aria-controls="navs-justified-messages"
+                          aria-selected="false"
+                        >
+                          <i class="tf-icons bx bxs-user-account"></i> Students
+                        </button>
+                      </li>
+                    </ul>
+                    <div class="tab-content">
+                      <div class="tab-pane fade show active" id="navs-justified-home{{ unique_code }}" role="tabpanel">
+                        <a class="btn btn-success m-1" style="background-color: #20c404;" href="{% url 'view_folder_f' folder_code=unique_code %}">Enter Folder</a>
+                          
+
+                       <hr>
+                      
+                        <p class="mb-0">
+                          Folder Sharing Code:   
+                      </p>
+                      <textarea rows="1" cols="50" readonly style="width: 100%; border: none; resize: both; /* Allows expanding both horizontally and vertically */ overflow: auto; /* Only shows scrollbars if needed */ appearance: none; /* Removes default styling, including arrows in some browsers */ -webkit-appearance: none; /* For Safari and Chrome */ -moz-appearance: none; /* For Firefox */">{{ unique_code }}</textarea>
+                      <hr>  
+                      <p class="mb-0">
+                          Description: {{ folder.description }}
+                        </p>
+                      </div>
+                      <div class="tab-pane fade" id="navs-justified-profile{{ unique_code }}" role="tabpanel">
+                        <p>
+                          {{ folder.faculty_gsuite }}
+                        </p>
+                        
+                      </div>
+                      <div class="tab-pane fade" id="navs-justified-messages{{ unique_code }}" role="tabpanel">
+                        <p>
+                          {% for student in folder.students %}
+                          <li>{{ student.student_id }}: {{ student.first_name }}, {{ student.middle_name }}{{ student.last_name }} </li>
+                        {% endfor %}
+
+                        {% if not folder.students %}
+                        No Students Yet
+
+                        {% endif %}
+                        </p>
+                      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {% endfor %}
+
+                
+                {% for folder in empty_folders %}
+                
+
+                <div class="col-xl-6">
+                  
+                  <div class="nav-align-top mb-4">
+                    <div class="dropdown ml-auto" style="background-color: #f0ecf4; border-radius: 5px;">
+                      <button class="btn btn-link " type="button" id="dropdownMenuButton"  style="margin-left: 90%;" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class='bx bx-dots-vertical-rounded'></i>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                          <button class="btn btn-success m-1"  style="background-color: #20c404;"   data-bs-toggle="modal" data-bs-target="#foldermodal{{folder.unique_code}}">Edit Name</button>
+                        </li>
+                        <li><form method="post" onsubmit="return confirmDelete()">
+                          {% csrf_token %}
+                            <input type="text" name="folder_code_delete" value="{{ folder.unique_code }}" style="display: none">
+                            <button  style="background-color: #ff0404;" class="btn btn-danger m-1" type="submit">Delete Folder</button>
+                        </form></li>
+                        
+                      </ul>
+                    </div>
+                    <ul class="nav nav-tabs nav-fill" role="tablist">
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link active"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-home{{ folder.unique_code }}"
+                          aria-controls="navs-justified-home"
+                          aria-selected="true"
+                        >
+                          <i class="tf-icons bx bx-file"></i>Folder Name: {{ folder.folder_name }}
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-profile{{ folder.unique_code }}"
+                          aria-controls="navs-justified-profile"
+                          aria-selected="false"
+                        >
+                          <i class="tf-icons bx bx-user"></i> Creator
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button
+                          type="button"
+                          class="nav-link"
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-justified-messages{{ folder.unique_code }}"
+                          aria-controls="navs-justified-messages"
+                          aria-selected="false"
+                        >
+                          <i class="tf-icons bx bxs-user-account"></i> Students
+                        </button>
+                      </li>
+                      
+                    </ul>
+                    <div class="tab-content">
+                      <div class="tab-pane fade show active" id="navs-justified-home{{ folder.unique_code }}" role="tabpanel">
+                      
+                          <a class="btn btn-success m-1" style="background-color: #20c404;" href="{% url 'view_folder_f' folder_code=folder.unique_code %}">Enter Folder</a>
+                          
+
+                       
+
+                    <hr>
+                     
+                    <p class="mb-0">
+                      Folder Sharing Code:   
+                  </p>
+                  <textarea rows="1" cols="50" readonly style="width: 100%; border: none; resize: both; /* Allows expanding both horizontally and vertically */ overflow: auto; /* Only shows scrollbars if needed */ appearance: none; /* Removes default styling, including arrows in some browsers */ -webkit-appearance: none; /* For Safari and Chrome */ -moz-appearance: none; /* For Firefox */">{{ folder.unique_code }}</textarea>
+                        <hr>
+                  <p class="mb-0">
+                          Description: {{ folder.description }}
+                        </p>
+                      </div>
+                      <div class="tab-pane fade" id="navs-justified-profile{{ folder.unique_code }}" role="tabpanel">
+                        <p>
+                          {{ folder.faculty_email	 }}
+                        </p>
+                        
+                      </div>
+                      <div class="tab-pane fade" id="navs-justified-messages{{ folder.unique_code }}" role="tabpanel">
+                        <p>
+                          No Students Yet
+                        </p>
+                      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {% endfor %}
+              </div>
+              <!-- Pills -->
+            </div>
+            <!-- / Content -->
+            <div class="row">
+              <!-- Order Statistics -->
+              <div class="col-md-12 col-lg-12  order-0 mb-4">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                    <div class="card-title mb-0">
+                      <h3 class="m-0 me-2">Latest Storage Usage</h3>
+                      <small class="text-muted">{{ files_this_week }} Files stored this week </small>
+                    </div>
+                  </div>
+                    <hr>
+                    <div class="card-body">
+                    
+                    <ul class="p-0 m-0">
+                      {% for file in latest_files %}
+                      <li class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                          <span class="avatar-initial rounded bg-label-primary"
+                            ><i class="bx bx-file"></i
+                          ></span>
+                        </div>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                          <div class="me-2">
+                            <h6 class="mb-0">File Name: {{ file.name }}</h6>
+                            <small class="text-muted">Folder Size: {{ file.size_mb }} mb</small><br>
+                            <small class="text-muted">Folder Name: {{ file.folder }}</small>
+                          </div>
+                          <div class="user-progress">
+                            <small class="fw-semibold">File Extension: {{ file.extension }} <br> Uploaded Time: {{ file.modified_time }} </small>
+                          </div>
+                        </div>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+        {% include 'footer.html' %}
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    
+<script>
+  const cardIcon = document.getElementById('cardView');
+  const listIcon = document.getElementById('listView');
+  const cardDivs = document.querySelectorAll('.cardDiv');
+  const listDivs = document.querySelectorAll('.listDiv');
+
+  function setView(view) {
+    if (view === 'card') {
+      cardDivs.forEach(div => div.classList.remove('hidden'));
+      listDivs.forEach(div => div.classList.add('hidden'));
+      cardIcon.classList.add('active');
+      listIcon.classList.remove('active');
+      localStorage.setItem('selectedView', 'card');
+    } else if (view === 'list') {
+      cardDivs.forEach(div => div.classList.add('hidden'));
+      listDivs.forEach(div => div.classList.remove('hidden'));
+      cardIcon.classList.remove('active');
+      listIcon.classList.add('active');
+      localStorage.setItem('selectedView', 'list');
+    }
+  }
+
+  // On page load
+  const savedView = localStorage.getItem('selectedView') || 'card';
+  setView(savedView);
+
+  // Event listeners
+  cardIcon.addEventListener('click', () => setView('card'));
+  listIcon.addEventListener('click', () => setView('list'));
+</script>
+ 
+    <script>
+      function confirmDelete() {
+          return confirm("Are you sure you want to delete this folder?");
+      }
+      </script>
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+
+    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+
+    <!-- Main JS -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    <!-- Page JS -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
+  </body>
+</html>

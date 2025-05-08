@@ -1,0 +1,294 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="../assets/"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>DECE NAS- Student Accounts</title>
+
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/bsu.ico' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}"  class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'assets/js/config.js' %}"></script>
+        <!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+<!-- DataTables JS CDN -->
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
+<!-- DataTables CSS CDN -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css">
+
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        {% include 'admin_p/nav.html' %}
+
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Tables /</span> Student Accounts
+                <button
+                type="button"
+                class="btn btn-primary" style="background-color: #ff0404;"
+                data-bs-toggle="modal"
+                data-bs-target="#regModal"
+              >
+                + Register new student
+              </button>
+
+        
+              
+              </h4>
+              {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+      <!-- Modal -->
+              <form method="post">
+                {% csrf_token %}
+                <div class="modal fade" id="regModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel1">Student Register</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <div class="modal-body">
+
+              <div class="row g-2">
+                <div class="col mb-0">
+                  <label for="emailBasic" class="form-label">Username </label>
+                  <input type="text" name="username" id="emailBasic" class="form-control" placeholder="Username" />
+                </div>
+                <div class="col mb-0">
+                  <label for="dobBasic" class="form-label">Password</label>
+                  <input type="text" name="password" id="dobBasic" class="form-control" placeholder="Password" />
+                </div>
+              </div>
+         
+              <div class="row g-2">
+                <div class="col mb-0">
+                  <label for="emailBasic" class="form-label">SR Code </label>
+                  <input type="text" name="sr_code" id="emailBasic" class="form-control" placeholder="Sr Code" />
+                </div>
+                <div class="col mb-0">
+                  <label for="dobBasic" class="form-label">First Name</label>
+                  <input type="text" name="first_name" id="dobBasic" class="form-control" placeholder="First Name" />
+                </div>
+              </div>
+
+              
+              <div class="row g-2">
+                <div class="col mb-0">
+                  <label for="emailBasic" class="form-label">Middle Name </label>
+                  <input type="text" name="middle_name" id="emailBasic" class="form-control" placeholder="Middle Name" />
+                </div>
+                <div class="col mb-0">
+                  <label for="dobBasic" class="form-label">Last Name</label>
+                  <input type="text" name="last_name" id="dobBasic" class="form-control" placeholder="Last name" />
+                </div>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+              <button type="submit" class="btn btn-primary" style="background-color: #ff0404;">Register the student</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+              <!-- Basic Bootstrap Table -->
+              <div class="card">
+                <div class="table-responsive text-nowrap">
+                  <table class="table" id="table_data">
+                    <thead>
+                      <tr>
+                        <th>G-suite</th>  <!-- Replace with actual field names like 'field1', 'field2' -->
+                        <th>First Name</th>
+                        <th>Middle Name</th>
+                        <th>Last Name</th>
+                        <th>Username </th>
+                        <th>Storage Limit </th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                      {% for log in data %}
+                      <tr>
+                        <td>{{ log.student_id  }}@g.batstate-u.edu.ph</td> <!-- Replace 'field1' with actual model field names -->
+                        <td>{{ log.first_name  }} </td>
+                        <td>{{ log.middle_name  }} </td>
+                        <td> {{ log.last_name  }}</td>
+                        <td>{{ log.username  }}</td>
+                        <td> {{ log.mb_limit  }} MBs</td>
+                        <td><a href="{% url 'default_password_user_one' log.u_id 'student' %}" class="btn btn-success" style="background-color: #20c404;">Reset Password</a> <hr>
+                          <button
+                          type="button"
+                          class="btn btn-primary" style="background-color: #ff0404;"
+                          data-bs-toggle="modal"
+                          data-bs-target="#limitModal{{log.u_id}}"
+                        >
+                          Change Limit
+                        </button>
+          
+                        </td>
+
+                      </tr>
+                      {% empty %}
+                      <tr><td colspan="100%">No records found.</td></tr>
+
+                    
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!--/ Basic Bootstrap Table -->
+
+              <!--/ Responsive Table -->
+            </div>
+            <!-- / Content -->
+                      {% for log in data %}
+            <form method="post">
+              {% csrf_token %}
+              <div class="modal fade" id="limitModal{{log.u_id}}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel1">Change Student Storage Limit</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+
+            <div class="row g-2">
+              <div class="col mb-0">
+                <label for="emailBasic" class="form-label">Limit </label>
+                <input type="number" name="user_id" id="user_id" value="{{ log.u_id }}" class="form-control" placeholder="Username" style="display: none;" />
+                <input type="number" name="mb_limit" id="limit" value="{{ log.mb_limit }}" class="form-control" placeholder="500" />
+              </div>
+            
+            </div>
+ 
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+            <button type="submit" class="btn btn-primary" style="background-color: #ff0404;" name="limit">Change Storage Limit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endfor %}
+  <!-- Footer -->
+          
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+ <script>
+  new DataTable('#table_data');
+
+ </script>
+
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+
+    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+
+    <!-- Main JS -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    <!-- Page JS -->
+    <script src="{% static 'assets/js/ui-modals.js' %}"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
+  </body>
+</html>

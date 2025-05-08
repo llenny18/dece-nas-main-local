@@ -1,0 +1,198 @@
+{% load static %}
+<script>
+  let inactivityTime = 30 * 60 * 1000; // 30 minutes in milliseconds
+  let inactivityTimer;
+
+  function resetTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      alert('You have been inactive for 30 minutes. Redirecting...');
+      window.location.href = "https://decenas.net/student_logout"; // Change to your actual redirect URL
+    }, inactivityTime);
+  }
+
+  // Events that count as activity
+  ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetTimer, true);
+  });
+
+  // Start the initial timer
+  resetTimer();
+</script>
+
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    <div class="app-brand demo">
+        <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 60%;margin: auto;">
+
+
+      <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+        <i class="bx bx-chevron-left bx-sm align-middle"></i>
+      </a>
+        </div>
+
+    <div class="menu-inner-shadow"></div>
+
+    <ul class="menu-inner py-1">
+     
+      <li class="menu-item {% if request.path == '/student_folder/' or request.path == '/view_folder_s/'  %}active{% endif %}">
+        <a href="{% url 'student_folder' %}" class="menu-link">
+          <i class="menu-icon tf-icons bx bxs-file"></i>
+          <div data-i18n="Analytics">File Folders</div>
+        </a>
+      </li>
+     
+      
+      <hr>
+      <h6 class="text-nowrap mb-2"  style="margin-left: 17px; margin-right: 10px;"> NAS Storage Summary </h6>
+      <li class="menu-item">
+    
+   
+          <div style="margin-left: 28px; margin-right: 10px;">
+     
+              
+              <span class="d-block mb-1" style="font-size: 13px" >  <i class="bx bx-data text-danger" ></i>  Space Usage (MB)  <h3 class="card-title mb-0 badge bg-label-dark rounded-pill" style="font-size: 13px;"> {{ total_size_mb }} MBs</h3></span>
+             
+          
+          </div>
+      
+      </li>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1" style="font-size: 13px" > <i class="bx bxs-folder-open text-danger" ></i>  Count of Folders <h3 class="card-title mb-0 badge bg-label-dark rounded-pill" style="font-size: 13px;"> {{ total_folders }} Folders</h3></span>
+              
+            
+          
+          </div>
+      
+      </li>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1" style="font-size: 13px" > <i class="bx bx-file text-danger" ></i>  Count of Files <h3 class="card-title mb-0 badge bg-label-dark rounded-pill" style="font-size: 13px;"> {{ total_files }} Files</h3></span>
+              
+          
+          </div>
+      
+      </li>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1" style="font-size: 13px" >  <i class="bx bxs-data text-danger" ></i>  Storage Use (GB) <h3 class="card-title mb-0 badge bg-label-dark rounded-pill" style="font-size: 13px;"> {{ total_size_gb }} GBs</h3></span>
+              
+          
+          </div>
+      
+      </li>
+      <hr>
+      <h6 class="text-nowrap mb-2"  style="margin-left: 17px; margin-right: 10px;">Files Uploaded</h6>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1"> <i class="bx bxs-calendar-event text-danger" ></i> This Day: <span class="badge bg-label-dark rounded-pill">{{ files_today }}</span></span>
+              
+          
+          </div>
+      
+      </li>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1"> <i class="bx bxs-calendar-alt text-danger" ></i> This Week: <span class="badge bg-label-dark rounded-pill">{{ files_this_week }}</span></span>
+              
+          
+          </div>
+      
+      </li>
+      <li class="menu-item">
+    
+   
+             <div style="margin-left: 28px; margin-right: 10px;">
+              <span class="d-block mb-1"> <i class="bx bxs-calendar text-danger" ></i> This Month: <span class="badge bg-label-dark rounded-pill">{{ files_this_month }}</span></span>
+              
+          
+          </div>
+      
+     
+    </ul>
+  </aside>
+
+  <div class="layout-page">
+    <!-- Navbar -->
+
+    <nav
+      class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+      id="layout-navbar"
+    >
+      <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+          <i class="bx bx-menu bx-sm"></i>
+        </a>
+      </div>
+
+      <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+      
+
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+          <!-- Place this tag where you want the button to render. -->
+          <li class="nav-item lh-1 me-3">
+           Welcome Student:  {{ full_name }}
+          
+          
+          </li>
+
+          <!-- User -->
+          <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+              <div class="avatar avatar-online">
+                <img src="{% static 'assets/img/favicon/bsu.ico' %}" alt class="w-px-40 h-auto rounded-circle" />
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="{% url 'student_folder' %}">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0 me-3">
+                      <div class="avatar avatar-online">
+                        <img src="{% static 'assets/img/favicon/bsu.ico' %}" alt class="w-px-40 h-auto rounded-circle" />
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <span class="fw-semibold d-block">Welcome: {{ full_name }}</span>
+                      <small class="text-muted">Student</small>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <div class="dropdown-divider"></div>
+              </li>
+             
+              <li>
+                <a class="dropdown-item" href="{% url 'change_password_online' %}" target="_blank">
+                  <i class="bx bx-lock-open me-2"></i>
+                  <span class="align-middle">Change Password</span>
+                </a>
+              </li>
+              
+              <li>
+                <div class="dropdown-divider"></div>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'student_logout' %}">
+                  <i class="bx bx-power-off me-2"></i>
+                  <span class="align-middle">Log Out</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!--/ User -->
+        </ul>
+      </div>
+    </nav>

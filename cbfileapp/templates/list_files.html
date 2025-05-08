@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Drive Files</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 5px; }
+        .folder { font-weight: bold; margin-top: 20px; }
+        .file-list { margin-left: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Files in Network Drive</h2>
+
+    <!-- Display Folders and Files -->
+    {% if data.folders %}
+        {% for folder_code, files in data.folders.items %}
+            <h3 class="folder">{{ folder_code }}/</h3>
+            <ul class="file-list">
+                {% for pdf in files.pdfs %}
+                    <li>
+                        📄 <a href="{% url 'f_serve_file' filename=pdf folder_code=folder_code %}" target="_blank">{{ pdf }}</a>
+                        <iframe src="{% url 'f_serve_file' filename=pdf folder_code=folder_code %}" width="600" height="400"></iframe>
+                    </li>
+                {% endfor %}
+                
+                {% for image in files.images %}
+                    <li>
+                        🖼️ <a href="{% url 'f_serve_file' filename=image folder_code=folder_code %}" target="_blank">{{ image }}</a>
+                        <img src="{% url 'f_serve_file' filename=image folder_code=folder_code %}" width="200" alt="Image Preview">
+                    </li>
+                {% endfor %}
+                
+                {% for video in files.videos %}
+                    <li>
+                        🎥 <a href="{% url 'f_serve_file' filename=video folder_code=folder_code %}" target="_blank">{{ video }}</a>
+                        <video width="400" controls>
+                            <source src="{% url 'f_serve_file' filename=video folder_code=folder_code %}" type="video/mp4">
+                        </video>
+                    </li>
+                {% endfor %}
+
+                {% for text in files.texts %}
+                    <li>
+                        📜 <a href="{% url 'f_serve_file' filename=text folder_code=folder_code %}" target="_blank">{{ text }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if not files.pdfs and not files.images and not files.videos and not files.texts %}
+                    <li>No files in this folder.</li>
+                {% endif %}
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>No folders found.</p>
+    {% endif %}
+
+    <!-- Display Files in Root Directory -->
+    <h3>Files in Root Directory</h3>
+    <ul>
+        {% for pdf in data.pdfs %}
+            <li>
+                📄 <a href="{% url 'serve_file' filename=pdf %}" target="_blank">{{ pdf }}</a>
+                <iframe src="{% url 'serve_file' filename=pdf  %}" width="600" height="400"></iframe>
+            </li>
+        {% empty %}
+            <li>No PDF files found.</li>
+        {% endfor %}
+
+        {% for image in data.images %}
+            <li>
+                🖼️ <a href="{% url 'serve_file' filename=image %}" target="_blank">{{ image }}</a>
+                <img src="{% url 'serve_file' filename=image  %}" width="200" alt="Image Preview">
+            </li>
+        {% empty %}
+            <li>No image files found.</li>
+        {% endfor %}
+
+        {% for video in data.videos %}
+        <li>
+            🎥 <a href="{% url 'serve_file' filename=video  %}" target="_blank">{{ video }}</a>
+            <video width="400" controls>
+                <source src="{% url 'serve_file' filename=video  %}" type="video/mp4">
+            </video>
+        </li>
+    {% empty %}
+        <li>No video files found.</li>
+    {% endfor %}
+
+    {% for text in data.texts %}
+        <li>
+            📜 <a href="{% url 'serve_file' filename=text  %}" target="_blank">{{ text }}</a>
+        </li>
+    {% empty %}
+        <li>No text files found.</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

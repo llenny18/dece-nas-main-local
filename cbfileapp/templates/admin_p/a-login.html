@@ -1,0 +1,200 @@
+{% load static %}
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>DECE NAS- Administrator Login</title>
+
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/bsu.ico' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}"  class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/theme-default.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+
+    <!-- Page CSS -->
+    <!-- Page -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-auth.css' %}" />
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'assets/js/config.js' %}"></script>
+    <style>
+      .captcha{
+        width: 300px;
+        margin-left: 30px;
+      } 
+      
+    </style>
+  </head>
+
+  <body>
+ 
+    <div class="container-xxl">
+      <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+          <!-- Register -->
+          <div class="card">
+            <div class="card-body">
+              <!-- Logo -->
+              <div class="row">
+                <div class="col-md-6">
+                  <a href="{% url 'home' %}" style="background-color: #ff0404;" class="btn btn-danger "><i class="bx bx-left-arrow-circle" style="font-size: 25px"></i> &nbsp; Back to Home Page</a>
+                  <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 100%;"><!-- /Logo -->
+               </div>
+               <div class="col-md-6  text-left">
+                <h2 class="mb-3 mt-3">LOGIN NOW TO NASTECH DRIVE </h2>
+                     <i class="bx bxs-user-circle" style="font-size: 120px;  color: #b00404;"></i>
+                     <h4 class="mb-2">Welcome  Administrator </h4>
+                <p class="mb-4">Please sign-in to your account and start managing your files</p>
+  
+              <form id="formAuthentication" class="mb-3" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email or Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="email"
+                    name="email-username"
+                    placeholder="Enter your email or username"
+                    required
+                  />
+                </div>
+                <div class="mb-3 form-password-toggle">
+                  <div class="d-flex justify-content-between">
+                    <label class="form-label" for="password">Password</label>
+                    <a href="{% url 'send_otp' %}">
+                      <small>Forgot Password?</small>
+                    </a>
+                  </div>
+                  <div class="input-group input-group-merge">
+                    <input
+                      type="password"
+                      id="password"
+                      class="form-control"
+                      name="password"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                  </div>
+                </div>
+              
+               <hr>
+                {% csrf_token %}
+                {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
+            
+                <div class="mb-3">
+                  <button style="background-color: #ff0404;" class="btn btn-primary d-grid w-100" id="loginBtn" type="submit">Sign in</button>
+                </div>
+              </form>
+              {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+              <p class="text-center">
+                <span>New on our platform? {{locked_out}}</span>
+                <a href="{% url 'student_reg' %}">
+                  <span>Create an account</span>
+                </a>
+              </p>
+            </div>
+          </div>
+          <!-- /Register -->
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- / Content -->
+
+ 
+    {% if locked_out %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            disableInputs();
+
+            // Re-enable inputs after 5 minutes
+            setTimeout(() => {
+                enableInputs();
+            }, 300000); // 5 minutes (300000 ms)
+        });
+
+        function disableInputs() {
+            document.getElementById('email').disabled = true;
+            document.getElementById('password').disabled = true;
+            document.getElementById('loginBtn').disabled = true;
+        }
+
+        function enableInputs() {
+            document.getElementById('email').disabled = false;
+            document.getElementById('password').disabled = false;
+            document.getElementById('loginBtn').disabled = false;
+        }
+    </script>
+{% endif %}
+
+
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+
+    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+
+    <!-- Main JS -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    <!-- Page JS -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var captchaInput = document.getElementById("id_captcha_1");
+        if (captchaInput) {
+            captchaInput.classList.add("form-control");
+            captchaInput.setAttribute("placeholder", "Enter the CAPTCHA");
+        }
+    });
+  </script>
+  </body>
+</html>
