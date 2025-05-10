@@ -345,7 +345,7 @@
                     </ul>
                   </div></h5>
                   <p class="card-text file-description">Description: {{ pdf.file_description }}</p>
-                  <p class="card-text file-description">Uploader: {{ pdf.user_name }}</p>
+                  <p class="card-text file-description">Uploader: {{ pdf.uploader }}</p>
                   <p class="card-text file-description">Date Uploaded: {{ pdf.uploaded_at }}</p>
                   
                   <iframe src="{% url 'f_serve_file' folder_code=folder_code filename=pdf.file_link  %}" style="width: 100%;" height="400"></iframe>
@@ -396,7 +396,7 @@
                     </ul>
                   </div></h5>
                   <p class="card-text file-description">Description: {{ text.file_description }}</p>
-                  <p class="card-text file-description">Uploader: {{ text.user_name }}</p>
+                  <p class="card-text file-description">Uploader: {{ text.uploader }}</p>
                   <p class="card-text file-description">Date Uploaded: {{ text.uploaded_at }}</p>
                   <hr>
                   <object data="{% url 'f_serve_file' folder_code=folder_code filename=text.file_link %}" style="width: 100%;" height="400"></object>
@@ -445,7 +445,7 @@
                     </ul>
                   </div></h5>
                   <p class="card-text file-description">Description: {{ video.file_description }}</p>
-                  <p class="card-text file-description">Uploader: {{ video.user_name }}</p>
+                  <p class="card-text file-description">Uploader: {{ video.uploader }}</p>
                   <p class="card-text file-description">Date Uploaded: {{ video.uploaded_at }}</p>
                   
                   <video width="450" controls>
@@ -496,7 +496,7 @@
                     </ul>
                   </div></h5>
                   <p class="card-text file-description">Description: {{ image.file_description }}</p>
-                  <p class="card-text file-description">Uploader: {{ image.user_name }}</p>
+                  <p class="card-text file-description">Uploader: {{ image.uploader }}</p>
                   <p class="card-text file-description">Date Uploaded: {{ image.uploaded_at }}</p>
                   
                   <img style="width: 100%;"  src="{% url 'f_serve_file'  folder_code=folder_code filename=image.file_link  %}" width="300" alt="Image Preview">

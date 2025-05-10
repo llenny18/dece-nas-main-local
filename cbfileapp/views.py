@@ -53,6 +53,8 @@ import random  # Random number generation
 import datetime  # Date and time handling
 
 
+from django.db import connection
+
 def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
     """
     A generic logging function to log actions for admin and student.
@@ -64,23 +66,30 @@ def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
     """
     ip_address = request.META.get('REMOTE_ADDR', '')
     user_agent = request.META.get('HTTP_USER_AGENT', '')
+    datetimenow = datetime.datetime.now()
 
     if user_type == 'admin':
         # Log the action for admin
-        AdminLogs.objects.create(
-            admin_id=user_id,
-            action=action,
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO `admin_logs` (`log_id`, `admin_id`, `action`, `timestamp`, `ip_address`, `user_agent`) VALUES (NULL, %s, %s, current_timestamp(), %s, %s)
+                """,  [user_id, action, ip_address,user_agent]
+            )
+
     elif user_type == 'student':
         # Log the action for student
-        StudentLogs.objects.create(
-            student_id=user_id,
-            action=action,
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO `student_logs` (`log_id`, `student_id`, `action`, `timestamp`, `ip_address`, `user_agent`) 
+            VALUES (NULL, %s, %s, NOW() + INTERVAL 8 HOUR, %s, %s);
+
+                """,  [user_id, action, ip_address,user_agent]
+            )
+
+
+
 
 
 def generate_otp():
@@ -373,7 +382,7 @@ def login_admin(request):
 
             # Lock the account after 3 failed attempts
             if attempts >= 3:
-                lockout_time = now() + datetime.datetime.timedelta(minutes=5)
+                lockout_time = now() + datetime.timedelta(minutes=5)
                 request.session['admin_lockout_time'] = lockout_time.isoformat()
                 messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
 
@@ -434,7 +443,7 @@ def login_faculty(request):
 
             # Lock the account after 3 failed attempts
             if attempts >= 3:
-                lockout_time = now() + datetime.datetime.timedelta(minutes=5)
+                lockout_time = now() + datetime.timedelta(minutes=5)
                 request.session['faculty_lockout_time'] = lockout_time.isoformat()
                 messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
                 log_action('admin', u_id, 'Logged In too many failed attempts, locked for 5 minutes', request)
@@ -749,7 +758,7 @@ def admin_logs(request):
     if not admin_id:
         return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
-    data = FacultyAdminLogs.objects.all()
+    data = FacultyAdminLogs.objects.all().order_by("-log_id")
     return render(request, 'admin_p/admin-logs.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
 def student_logs(request):
@@ -761,7 +770,7 @@ def student_logs(request):
         return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
 
-    data = StudentActivityLogs.objects.all()
+    data = StudentActivityLogs.objects.all().order_by("-log_id")
 
     return render(request, 'admin_p/student-logs.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
@@ -967,7 +976,7 @@ def login_student(request):
 
             # Lock the account after 3 attempts
             if attempts >= 3:
-                lockout_time = now() + datetime.datetime.timedelta(minutes=5)
+                lockout_time = now() + datetime.timedelta(minutes=5)
                 request.session['lockout_time'] = lockout_time.isoformat()
                 messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
                 log_action('student', student_id, 'Logged In too many failed attempts, locked for 5 minutes', request)
@@ -1358,7 +1367,7 @@ def verify_otp(request):
 import os
 from subprocess import run, CalledProcessError
 from django.conf import settings
-
+"""
 def map_network_drive():
   
     network_drive = settings.NETWORK_DRIVE
@@ -1385,8 +1394,8 @@ def map_network_drive():
 
 # Define the Network Drive Path
 NETWORK_DRIVE_PATH =  r"\\172.16.127.120\shared_folder"  # Update this if needed 
+"""
 
-""" 
 def map_network_drive():
 
     network_drive = settings.NETWORK_DRIVE
@@ -1404,7 +1413,7 @@ def map_network_drive():
 # Define the Network Drive Path
 NETWORK_DRIVE_PATH = r"Z:\\"  # Update this if needed
 
-    """
+    
 # Allowed file types
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")
 VIDEO_EXTENSIONS = (".mp4", ".avi", ".mov", ".mkv", ".flv")
@@ -1612,6 +1621,9 @@ def view_folder_s(request, folder_code):
     student_id = request.session.get("student_id")
     full_name = request.session.get("s_fullname")
 
+    s_data = FacultyFoldersView.objects.get(unique_code=folder_code)
+    faculty_name = f"{s_data.faculty_first_name} {s_data.faculty_last_name} "
+
     if not student_id:
         return redirect(reverse("student_login"))
 
@@ -1652,6 +1664,7 @@ def view_folder_s(request, folder_code):
 
     # Combine both folder files into one queryset
     all_folder_files = list(folder_files1) + list(folder_files2)
+    print(all_folder_files)
 
 
 
@@ -1741,10 +1754,20 @@ def view_folder_s(request, folder_code):
 
             # Check if the file exists in folder_files and if uploader_id matches the student_id
             file_record = next((f for f in all_folder_files if f.file_name == file ), None)
+            
+          
+
 
             if file_record:  # Proceed only if the file exists and uploader_id matches
+                fol_data = FolderFile.objects.get(file_id=file_record.file_id)
+                fol_id = fol_data.uploader_id
+                if student_id == fol_id:
+                    user_name = full_name
+                else:
+                    user_name = faculty_name 
                 file_info = {
                     "file_id": file_record.file_id if file_record else "No ID",
+                    "uploader": user_name,
                     "file_name": file_record.file_guide if file_record else "No name",
                     "file_description": file_record.file_description if file_record else "No description",
                     "file_link": file,
@@ -1822,6 +1845,7 @@ def view_folder_s(request, folder_code):
         "folder_code": folder_code,
         "students": students,
         "shared_files": shared_files,
+        "faculty_name" : faculty_name,
         "files": files,
         "total_files": total_files,
         "total_size_mb": round(total_size_bytes / (1024**2), 2),  # Convert to MB
@@ -2190,7 +2214,8 @@ def faculty_folders(request):
                 folder_whole.delete()
 
     # Fetch folders linked to students
-    student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id).values(
+    student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id,
+        unique_code__regex=r'^[^_]*$').values(
         'unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 
         'student_first_name', 'student_last_name'
     ).distinct().order_by('-id')
@@ -2224,10 +2249,12 @@ def faculty_folders(request):
     ).values('unique_code')
 
     empty_folders = FacultyFoldersView.objects.filter(
-        faculty_id=faculty_id
+        faculty_id=faculty_id,
+        unique_code__regex=r'^[^_]*$'
     ).exclude(
         unique_code__in=Subquery(student_folders_subquery)
     ).values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_email')
+
 
     # Get all faculty files
     faculty_files = FolderFile.objects.filter(uploader_id=faculty_id)

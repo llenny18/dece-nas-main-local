@@ -80,6 +80,7 @@ CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'  # Use random 
 CAPTCHA_LENGTH = 6  # Make it longer for more difficulty
 CAPTCHA_OUTPUT_FORMAT = 'PNG'  # Keep high quality
 
+""" 
 NETWORK_DRIVE = {
     "drive_letter": "Z:",
     "network_path": "\\\\172.16.127.120\\shared_folder",
@@ -87,20 +88,20 @@ NETWORK_DRIVE = {
      "password": os.getenv("NETWORK_PASSWORD", "@dece@"),
      "persistent": True,
 } 
-
+""" 
 
 
 
 # Allow iframe embedding for PDF files
 X_FRAME_OPTIONS = "SAMEORIGIN"  # Allow iframes from the same site
 
-""" 
+
 NETWORK_DRIVE = {
      "drive_letter": "Z:",
      "network_path": "\\192.168.102.219\nastry",
      "persistent": True,
 }
-""" 
+
 
 MEDIA_ROOT = "Z:/"
 MEDIA_URL = "/media/"
